@@ -1,0 +1,16 @@
+---
+# LDAP PACKAGES
+- name: Install ldap packages
+  yum:
+    pkg:
+      #- phpldapadmin 
+      - httpd
+      - openldap
+      - compat-openldap
+      #- openldap-devel
+      - openldap-clients
+      - openldap-servers
+      - openssl
+      - python-ldap
+      - epel-release
+    state: latest

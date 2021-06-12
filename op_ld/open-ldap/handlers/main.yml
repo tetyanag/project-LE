@@ -1,0 +1,14 @@
+---
+# handlers file for ldap
+
+- name: restart slapd service
+  service:
+    name: slapd
+    state: restarted
+  listen: ldap service
+
+- name: restart http service
+  service:
+    name: httpd
+    state: restarted
+  listen: http service

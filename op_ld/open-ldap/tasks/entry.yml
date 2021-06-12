@@ -1,0 +1,62 @@
+---
+# CUSTOM ENTRIES
+- name: Create a parent DN entry
+  ldap_entry:
+    dn: dc=ziyotek2,dc=local
+    objectClass:
+      - dcObject
+      - organization
+    attributes:
+      o: ziyotek2.local
+      dc: ziyotek2
+    server_uri: ldap://localhost/
+    bind_dn: cn=admin,dc=ziyotek2,dc=local
+    bind_pw: password
+
+- name: Make sure we have a parent entry for users
+  ldap_entry:
+    dn: ou=users,dc=ziyotek2,dc=local
+    objectClass:
+      - organizationalUnit
+      - top
+    attributes:
+      ou: users
+    server_uri: ldap://localhost/
+    bind_dn: cn=admin,dc=ziyotek2,dc=local
+    bind_pw: password
+
+- name: Make sure we have a parent entry for groups
+  ldap_entry:
+    dn: ou=groups,dc=ziyotek2,dc=local
+    objectClass:
+      - organizationalUnit
+      - top
+    attributes:
+      ou: groups
+    server_uri: ldap://localhost/
+    bind_dn: cn=admin,dc=ziyotek2,dc=local
+    bind_pw: password
+
+- name: Creating ldapuser user
+  ldap_entry:
+    dn: uid=ldapuser,ou=users,dc=ziyotek2,dc=local
+    objectClass:
+      - top
+      - account
+      - posixAccount
+      - shadowAccount
+    attributes:
+      cn: ldapuser
+      uid: ldapuser
+      uidNumber: 1005
+      gidnumber: 1005
+      homeDirectory: /home/users/ldapuser
+      loginShell: /bin/bash
+      shadowLastChange: 0
+      shadowMax: 0
+      shadowWarning: 0
+      description: A basic user
+      userPassword: "{{ ldap_encripted_password.stdout }}"
+    server_uri: ldap://localhost/
+    bind_dn: cn=admin,dc=ziyotek2,dc=local
+    bind_pw: password

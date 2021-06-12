@@ -1,0 +1,18 @@
+---
+# PACKAGE
+- name: Install Php ldap admin
+  yum:
+    name: phpldapadmin
+    state: latest
+
+# COPY CONFIGURE FILE
+- name: Copy config.php.j2 template file
+  template:
+    src: config.php.j2
+    dest: /etc/phpldapadmin/config.php
+
+- name: Copy phpldapadmin.conf.j2 template file
+  template:
+    src: phpldapadmin.conf.j2
+    dest: /etc/httpd/conf.d/phpldapadmin.conf
+  notify: http service

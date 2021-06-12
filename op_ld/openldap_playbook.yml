@@ -1,0 +1,12 @@
+# LDAP server config gggg
+---
+
+- name: configure ldap server
+  remote_user: root 
+  become: yes
+  hosts: prdx-ldap12
+  gather_facts: true
+  roles:
+    - open-ldap
+    - geerlingguy.php
+

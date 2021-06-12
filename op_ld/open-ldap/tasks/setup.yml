@@ -1,0 +1,50 @@
+# SLAPPASSWD
+- name: create a password file
+  file:
+    path: /root/secret.txt
+    state: touch
+    mode: 600
+
+- name: Generate password for ldap
+  shell: slappasswd -h {SSHA} -s password
+  register: ldap_encripted_password
+
+- name: copy output to a secret.txt
+  copy:
+    content: "{{ ldap_encripted_password.stdout }}"
+    dest: "/root/secret.txt"
+
+# CUSTOM SCHEMA FILES
+- name: create myschema dir
+  file:
+    path: /etc/openldap/myschema
+    state: directory
+
+- name: Copy hdb.ldif for creating custom database structure
+  template:
+    src: hdb.ldif.j2
+    dest: /etc/openldap/myschema/hdb.ldif
+
+- name: Load hdb template into ldap
+  command: ldapmodify -Y EXTERNAL  -H ldapi:/// -f /etc/openldap/myschema/hdb.ldif
+
+- name: Copy monitor.ldif file for creating login credentials
+  template:
+    src: monitor.ldif.j2
+    dest: /etc/openldap/myschema/monitor.ldif
+
+- name: Load hdb template into ldap
+  command: ldapmodify -Y EXTERNAL  -H ldapi:/// -f /etc/openldap/myschema/monitor.ldif
+  notify: ldap service
+
+# ADD BASE SCHEMA
+- name: Load some schemas (ignoring duplicate entries error for idempotence)
+  command: "ldapadd -Y EXTERNAL -H ldapi:/// -f /etc/openldap/schema/{{ item }}"
+  register: ldap_result_code2
+  failed_when: ldap_result_code2.rc not in [0,80]
+  changed_when: ldap_result_code2.rc not in [0,80]
+  with_items:
+    - cosine.ldif
+    - nis.ldif
+    - inetorgperson.ldif
+  notify: ldap service 

@@ -1,0 +1,28 @@
+# SERVICES
+- name: start and enable ldap service
+  service:
+    name: slapd
+    state: started
+    enabled: yes
+
+- name: stop firewall service
+  service:
+    name: firewalld
+    state: stopped
+
+- name: Set Selinux to permissive
+  selinux:
+    policy: targeted
+    state: permissive
+
+- name: Ensure SELinux is set to enforcing mode
+  lineinfile:
+    path: /etc/selinux/config
+    regexp: '^SELINUX='
+    line: SELINUX=disabled
+    
+- name: start and enable http service
+  service:
+    name: httpd
+    state: started
+    enabled: yes

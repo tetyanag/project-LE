@@ -1,0 +1,14 @@
+---
+#SSL/TLS
+- name: Enable SSL/TLS
+  lineinfile:
+    path: /etc/sysconfig/slapd
+    regexp: '^SLAPD_URLS='
+    line: 'SLAPD_URLS="ldapi:/// ldap:/// ldaps:///"'
+
+- name: Add custom options
+  lineinfile:
+    path: /etc/sysconfig/slapd
+    insertafter: '^#SLAPD_OPTIONS=""'
+    line: 'SLAPD_LDAPS="yes"'
+  notify: ldap service
