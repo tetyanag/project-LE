@@ -1,0 +1,59 @@
+---
+- name: configure ldap server
+  remote_user: root 
+  become: yes
+  hosts: all 
+  gather_facts: true
+  tasks: 
+    - name: Install required packages
+      yum:
+        name: "{{ item }}"
+        state: present
+      with_items: 
+        - openldap-clients
+        - nss-pam-ldapd
+        - authconfig
+        - wget
+        - nfs-utils
+        - autofs
+
+    - name: Creates Directory
+      file:
+        path: /etc/openldap/cacerts
+        state: directory
+
+    - name: Copy Ca.crt
+      ansible.builtin.shell:
+        chdir: /etc/openldap/cacerts
+        cmd: wget http://10.0.0.113/CA.crt
+
+    - name: Redhat | Execute authconfig
+      command: authconfig --enableldap --enableldapauth --enablemkhomedir --ldapserver=10.0.0.113 --ldapbasedn="dc=ziyotek2,dc=local" --update
+      changed_when: false
+
+    - name: create mountpoint
+      command: "mkdir /home/users"
+      changed_when: false
+      failed_when: false
+
+    - name: modify /etc/auto.master file
+      lineinfile: 
+        path: /etc/auto.master
+        line: '/var/home/users /etc/auto.users'
+        insertbefore: "^# NOTE"
+
+    - name: create direct-mapping file
+      copy: content="* -rw,sync prdx-nfs12:/var/home/users/&" dest=/etc/auto.users
+      notify: restart autofs
+
+    - name: start the services
+      service:
+        name: "{{ item }}"
+        state: started
+        enabled: yes
+      with_items:
+        - autofs
+  
+  handlers:
+    - name: restart autofs
+      service: name=autofs state=restarted
