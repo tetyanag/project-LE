@@ -1,0 +1,6 @@
+[master]
+prdx-kubem12 ansible_host=10.0.0.120 ansible_user=root
+
+[workers]
+prdx-kubew12 ansible_host=10.0.0.121 ansible_user=root
+prdx-kubew22 ansible_host=10.0.0.122 ansible_user=root
